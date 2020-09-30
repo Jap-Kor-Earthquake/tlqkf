@@ -1,0 +1,107 @@
+﻿//공지사항 탭메뉴
+jQuery(function($){
+	
+	// List Tab Navigation
+	var tab_list = $('div.newsTab.list');
+	var tab_list_i = tab_list.find('>ul>li');
+
+	tab_list_i.find('>ul').hide();
+	tab_list.find('>ul>li[class=active]').find('>ul').show();
+	
+	function listTabMenuToggle(event){
+		var t = $(this);
+		tab_list_i.find('>ul').hide();
+		t.next('ul').show();
+		
+		
+		tab_list_i.removeClass('active');
+		t.parent('li').addClass('active');
+		return false;		
+	}
+	tab_list_i.find('>a[href=#]').click(listTabMenuToggle).focus(listTabMenuToggle);
+	
+	// List Tab Navigation
+	var tab_list = $('div.fileTab.list');
+	var tab_list_i = tab_list.find('>ul>li');
+
+	tab_list_i.find('>ul').hide();
+	tab_list.find('>ul>li[class=active]').find('>ul').show();
+	
+	function listTabMenuToggle(event){
+		var t = $(this);
+		tab_list_i.find('>ul').hide();
+		t.next('ul').show();
+		
+		
+		tab_list_i.removeClass('active');
+		t.parent('li').addClass('active');
+		return false;		
+	}
+	tab_list_i.find('>a[href=#]').click(listTabMenuToggle).focus(listTabMenuToggle);
+	
+});
+
+//그리드 페이징 셋팅
+setPaging = function(pageNo, totCnt){
+	
+	$("#totCnt").html(totCnt);
+
+	var firstPage = ((pageNo - 1) * rowNum + 1); // 해당 페이지의 첫번째 데이터
+	var lastPage = pageNo * rowNum; // 해당 페이지의 마지막 데이터
+	
+	// 페이징 리스트 표출
+	var pageCnt = parseInt((totCnt-1) / rowNum) + 1; // 전체 페이지 수( (지정한 행 수 / 조회된 데이터 수)+1 )
+	var firstPageNo = parseInt((pageNo - 1) / 10) * 10 + 1; // 표출될 페이지 리스트의 첫 번째 페이지 번호
+	
+	var pagingStr = "";
+	pagingStr += "<a href='' class='first' title='처음' onclick='movePage("+1+", "+rowNum+");return false;'>"+"&lt;&lt;"+"</a>";
+	if(firstPageNo != 1){
+		pagingStr += "<a href='' class='pre' title='이전' onclick='movePage("+(firstPageNo-10)+", "+rowNum+");return false;'>"+"&lt;"+"</a>";
+	} 
+	for(var i=firstPageNo;i<firstPageNo + 10;i++){
+		if(i == pageCnt+1) break;
+		if(i == pageNo){
+			pagingStr += "<strong>"+(i)+"</strong>"
+		}else{
+			pagingStr += "<a href='' onclick='movePage("+(i)+", "+rowNum+");return false;'>"+(i)+"</a>";
+		}
+	}
+	if(firstPageNo + 10 < pageCnt){
+		pagingStr += "<a href='' class='next' title='다음'  onclick='movePage("+(firstPageNo+10)+", "+rowNum+");return false;'>"+"&gt;"+"</a>";
+	}
+	pagingStr += "<a href='' class='last' title='마지막' onclick='movePage("+(pageCnt)+", "+rowNum+");return false;'>"+"&gt;&gt"+"</a>";
+	
+	// 지정한 id값의 div 하위로 해당 페이지리스트가 표출된다.
+	$("#pageNavi").html(pagingStr);
+}
+
+//공통 (로딩바) AJAX 호출
+fn_ajax = function(ajaxUrl, ajaxData, returnFn, errFn){
+	var intv;
+	$.ajax({
+		type		: 'POST',
+		url			: ajaxUrl,      
+	  	data		: ajaxData,
+		dataType	:'JSON',
+		beforeSend  : function(data){
+			//$.blockUI({message:"<span></span>"});
+			intv = setInterval(function(){
+				$.blockUI();
+			}, 100);
+		},
+		success		: returnFn,
+		error   	: function(request, status, error){
+			if(request.status == 403){
+	          	alert("세션이 만료됬습니다. 로그인 화면으로 이동합니다.");
+        		location.href = request.responseText;
+        	}
+	    },
+		complete 	: function(x, status){
+			clearInterval(intv);
+			$.unblockUI();
+		}
+	});
+}
+
+
+
